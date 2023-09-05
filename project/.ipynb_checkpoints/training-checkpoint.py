@@ -276,10 +276,33 @@ class ODTrainer(Trainer):
     
     
     def train_batch(self, batch) -> BatchResult:
+        print(len(batch))
+        print(len(batch[0]))
+        
         image, targets = batch
+        print(len(image))
+        print(image[0].shape)
+        print(torch.is_tensor(image))
+        print(torch.is_tensor(targets))
         
         if self.device:
-            image, targets = image.to(self.device), targets.to(self.device)
+            image = torch.stack(image).to(self.device)
+            
+            target_tensors = []
+            for target in targets:
+                # Extract the relevant values from the dictionary
+                boxes = target["boxes"]
+                labels = target["labels"]
+
+                # Convert the values to tensors and move to the desired device
+                boxes_tensor = torch.tensor(boxes).to(self.device)
+                labels_tensor = torch.tensor(labels).to(self.device)
+
+                # Create a new dictionary with the converted tensors
+                target_tensor = {"boxes": boxes_tensor, "labels": labels_tensor}
+
+                # Append the dictionary to the list
+                target_tensors.append(target_tensor)
             
         self.model: Classifier
         batch_loss: float
@@ -306,8 +329,27 @@ class ODTrainer(Trainer):
     def test_batch(self, batch) -> BatchResult:
         image, targets = batch
         
+#         if self.device:
+#             image, targets = image.to(self.device), targets.to(self.device)
+            
         if self.device:
-            image, targets = image.to(self.device), targets.to(self.device)
+            image = torch.stack(image).to(self.device)
+            
+            target_tensors = []
+            for target in targets:
+                # Extract the relevant values from the dictionary
+                boxes = target["boxes"]
+                labels = target["labels"]
+
+                # Convert the values to tensors and move to the desired device
+                boxes_tensor = torch.tensor(boxes).to(self.device)
+                labels_tensor = torch.tensor(labels).to(self.device)
+
+                # Create a new dictionary with the converted tensors
+                target_tensor = {"boxes": boxes_tensor, "labels": labels_tensor}
+
+                # Append the dictionary to the list
+                target_tensors.append(target_tensor)
             
         self.model: Classifier
         losses = {}
