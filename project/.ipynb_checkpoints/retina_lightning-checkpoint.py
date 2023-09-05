@@ -9,6 +9,9 @@ class RetinaNetModule(pl.LightningModule):
     def __init__(self, model: torch.nn.Module):
         super().__init__()
         self.model = model
+        self.train_step_outputs = {'loss': [], 'accuracy': [], 'mod_accuracy': []}
+        self.valid_step_outputs = {'loss': [], 'accuracy': [], 'mod_accuracy': []}
+        self.test_outputs = {'loss': [], 'accuracy': [], 'mod_accuracy': []}
 
     def forward(self, images, targets=None):
         return self.model(images, targets)
@@ -16,13 +19,27 @@ class RetinaNetModule(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         images, targets = batch 
+        print('TRAINING')
         losses = self.forward(images, targets)
         loss = losses["classification"] + losses["bbox_regression"]
+        
         self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+        self.train_step_outputs['loss'].append(loss)
+        
         return loss
+    
+    def on_train_epoch_end(self):
+        avg_loss = torch.stack(self.train_step_outputs['loss']).mean()  
+        
+        #self.log_dict({"train_loss": avg_loss, "train_acc": acc, 'train_mod_acc': mod_acc})
+        print(f"TRAINING ---- {avg_loss=} ----")
 
     def validation_step(self, batch, batch_idx):
+        print(f'{len(batch)=}')
+        print(f'{len(batch[0])=}')
+        print(f'{batch[0]=}')
         images, targets = batch
+        print('VALIDATION')
         self.model.train()
         losses = self.forward(images, targets)
         val_loss = losses["classification"] + losses["bbox_regression"]  
