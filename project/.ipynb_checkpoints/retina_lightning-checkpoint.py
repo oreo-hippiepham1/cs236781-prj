@@ -35,9 +35,9 @@ class RetinaNetModule(pl.LightningModule):
         print(f"TRAINING ---- {avg_loss=} ----")
 
     def validation_step(self, batch, batch_idx):
-        print(f'{len(batch)=}')
-        print(f'{len(batch[0])=}')
-        print(f'{batch[0]=}')
+        # print(f'{len(batch)=}')
+        # print(f'{len(batch[0])=}')
+        # print(f'{batch[0]=}')
         images, targets = batch
         print('VALIDATION')
         self.model.train()
