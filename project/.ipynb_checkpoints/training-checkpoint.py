@@ -280,10 +280,10 @@ class ODTrainer(Trainer):
         print(len(batch[0]))
         
         image, targets = batch
-        print(len(image))
-        print(image[0].shape)
-        print(torch.is_tensor(image))
-        print(torch.is_tensor(targets))
+        # print(len(image))
+        # print(image[0].shape)
+        # print(torch.is_tensor(image))
+        # print(torch.is_tensor(targets))
         
         if self.device:
             image = torch.stack(image).to(self.device)
@@ -312,7 +312,7 @@ class ODTrainer(Trainer):
         self.optimizer.zero_grad()
         
         # forward
-        losses = self.model(image, targets)
+        losses = self.model(image, target_tensors)
         
         # backward
         losses.backward()
@@ -321,7 +321,7 @@ class ODTrainer(Trainer):
         # Calculate MAP
         with torch.no_grad():
             preds = self.model(image)
-            mean_average_prediction = self.compute_map(preds, targets)
+            mean_average_prediction = self.compute_map(preds, target_tensors)
         
         return BatchResult(batch_loss, mean_average_prediction)
     
@@ -357,10 +357,10 @@ class ODTrainer(Trainer):
         
         with torch.no_grad():
             preds = self.model(image)     
-            losses = self.model(image, targets)
+            losses = self.model(image, target_tensors)
 
             # Calculate accuracy for each class
-            mean_average_prediction = self.compute_map(preds, targets)
+            mean_average_prediction = self.compute_map(preds, target_tensors)
         
         return BatchResult(losses, mean_average_prediction)
     
